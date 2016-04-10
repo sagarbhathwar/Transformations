@@ -1,8 +1,11 @@
-#include "window.h"
-#include "vertex.h"
 #include <QDebug>
 #include <QString>
 #include <QOpenGLShaderProgram>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include "window.h"
+#include "vertex.h"
+#include "input.h"
 
 // Front Verticies
 #define VERTEX_FTR Vertex( QVector3D( 0.5f,  0.5f,  0.5f), QVector3D( 1.0f, 0.0f, 0.0f ) )
@@ -65,10 +68,11 @@ static QString vertexShaderSourceCode =
         "layout(location = 1) in vec3 color;\n"
         "out vec4 vColor;\n"
         "uniform mat4 modelToWorld;\n"
-        "uniform mat4 worldToView;\n"
+        "uniform mat4 worldToCamera;\n"
+        "uniform mat4 cameraToView;\n"
         "void main()\n"
         "{\n"
-          "gl_Position = worldToView * modelToWorld * vec4(position, 1.0);\n"
+        "gl_Position = cameraToView * worldToCamera * modelToWorld * vec4(position, 1.0);\n"
           "vColor = vec4(color, 1.0);\n"
         "}\n";
 
@@ -98,7 +102,9 @@ void Window::initializeGL()
     m_program->bind();
 
     u_modelToWorld = m_program->uniformLocation("modelToWorld");
-    u_worldToView = m_program->uniformLocation("worldToView");
+    //u_worldToView = m_program->uniformLocation("worldToView"); //deprecated
+    u_worldToCamera = m_program->uniformLocation("worldToCamera");
+    u_cameraToView = m_program->uniformLocation("cameraToView");
 
     m_vertex.create();
     m_vertex.bind();
@@ -126,7 +132,9 @@ void Window::resizeGL(int width, int height)
 void Window::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    m_program->setUniformValue(u_worldToView, m_projection);
+    //m_program->setUniformValue(u_worldToView, m_projection); //deprecated
+    m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
+    m_program->setUniformValue(u_cameraToView, m_projection);
     {
         m_program->bind();
         m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
@@ -135,12 +143,54 @@ void Window::paintGL()
     }
 }
 
+//Function where much of the transformations are specified
+
 void Window::update()
 {
+#if 0
     m_transform.rotate(1.0f, QVector3D(0.004f, 0.3f, 0.3f));
     m_transform.grow(0.00125f);
+#endif
+    Input::update();
+
+    if (Input::buttonPressed(Qt::RightButton))
+    {
+      static const float transSpeed = 0.025f;
+      static const float rotSpeed   = 0.025f;
+
+      m_camera.rotate(-rotSpeed * Input::mouseDelta().x(), Camera3D::LocalUp);
+      m_camera.rotate(-rotSpeed * Input::mouseDelta().y(), m_camera.right());
+
+      QVector3D translation;
+      if (Input::keyPressed(Qt::Key_W)) translation += m_camera.forward();
+      if (Input::keyPressed(Qt::Key_S)) translation -= m_camera.forward();
+      if (Input::keyPressed(Qt::Key_A)) translation -= m_camera.right();
+      if (Input::keyPressed(Qt::Key_D)) translation += m_camera.right();
+      if (Input::keyPressed(Qt::Key_Q)) translation -= m_camera.up();
+      if (Input::keyPressed(Qt::Key_E)) translation += m_camera.up();
+      m_camera.translate(transSpeed * translation);
+    }
+
+    m_transform.rotate(1.0f, QVector3D(0.4f, 0.3f, 0.3f));
+
     QOpenGLWindow::update();
 }
+
+void Window::keyPressEvent(QKeyEvent* event)
+{
+    if (event->isAutoRepeat()) event->ignore();
+    else Input::registerKeyPressed(event->key());
+}
+
+void Window::keyReleaseEvent(QKeyEvent* event)
+{
+    if (event->isAutoRepeat()) event->ignore();
+    else Input::registerKeyReleased(event->key());
+}
+
+void Window::mousePressEvent(QMouseEvent* event) { Input::registerMousePressed(event->button()); }
+
+void Window::mouseReleaseEvent(QMouseEvent* event){ Input::registerMouseReleased(event->button()); }
 
 void Window::teardownGL()
 {

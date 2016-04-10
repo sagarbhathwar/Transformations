@@ -6,6 +6,8 @@
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 #include "transform3d.h"
+#include "input.h"
+#include "camera3d.h"
 
 class QOpenGLShaderProgram;
 
@@ -24,14 +26,23 @@ public:
 protected slots:
     void update();
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
 private:
     QOpenGLBuffer m_vertex;
     QOpenGLVertexArrayObject m_object;
     QOpenGLShaderProgram* m_program;
 
     int u_modelToWorld;
-    int u_worldToView;
+    int u_worldToCamera;
+    int u_cameraToView;
+    //int u_worldToView; //deprecated since we have a camera now
     QMatrix4x4 m_projection;
+    Camera3D m_camera;
     Transform3D m_transform;
 
     void printContextInformation();
