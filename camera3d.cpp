@@ -36,14 +36,14 @@ QDebug operator<<(QDebug dbg, const Camera3D &transform)
     return dbg;
 }
 
-QDataStream &operator<<(QDataStream& out, const Camera3D& transform)
+QDataStream& operator<<(QDataStream& out, const Camera3D& transform)
 {
     out << transform.m_translation;
     out << transform.m_rotation;
     return out;
 }
 
-QDataStream &operator>>(QDataStream& in, Camera3D& transform)
+QDataStream& operator>>(QDataStream& in, Camera3D& transform)
 {
     in >> transform.m_translation;
     in >> transform.m_rotation;

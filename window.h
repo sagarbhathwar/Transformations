@@ -1,10 +1,12 @@
 #ifndef WINDOW_H
 #define WINDOW_H
+
 #include <QOpenGLWindow>
 #include <QOpenGLFunctions>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
+
 #include "transform3d.h"
 #include "input.h"
 #include "camera3d.h"
@@ -17,13 +19,12 @@ class Window : public QOpenGLWindow, protected QOpenGLFunctions
 public:
     Window();
     ~Window();
-
     void initializeGL();
     void resizeGL(int width, int height);
     void paintGL();
-    void teardownGL();
 
 protected slots:
+    void teardownGL();
     void update();
 
 protected:

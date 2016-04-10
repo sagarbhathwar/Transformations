@@ -19,7 +19,7 @@
 #define VERTEX_BBL Vertex( QVector3D(-0.5f, -0.5f, -0.5f), QVector3D( 1.0f, 0.0f, 1.0f ) )
 #define VERTEX_BBR Vertex( QVector3D( 0.5f, -0.5f, -0.5f), QVector3D( 1.0f, 1.0f, 1.0f ) )
 
-
+//Colored cube
 static const Vertex sg_vertexes[] = {
   // Face 1 (Front)
     VERTEX_FTR, VERTEX_FTL, VERTEX_FBL,
@@ -51,10 +51,7 @@ static const Vertex sg_vertexes[] = {
 #undef VERTEX_FTL
 #undef VERTEX_FTR
 
-Window::Window()
-{
-  m_transform.translate(0.0f, 0.0f, -5.0f);
-}
+Window::Window(){ m_transform.translate(0.0f, 0.0f, -5.0f); }
 
 Window::~Window()
 {
@@ -89,6 +86,7 @@ static QString fragmentShaderSourceCode =
 void Window::initializeGL()
 {
     initializeOpenGLFunctions();
+    connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(teardownGL()), Qt::DirectConnection);
     connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
     printContextInformation();
 
@@ -133,24 +131,20 @@ void Window::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     //m_program->setUniformValue(u_worldToView, m_projection); //deprecated
+    m_program->bind();
     m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
     m_program->setUniformValue(u_cameraToView, m_projection);
     {
-        m_program->bind();
-        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
         m_object.bind();
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes)/sizeof(sg_vertexes[0]));
+        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+        m_object.release();
     }
+    m_program->release();
 }
-
-//Function where much of the transformations are specified
 
 void Window::update()
 {
-#if 0
-    m_transform.rotate(1.0f, QVector3D(0.004f, 0.3f, 0.3f));
-    m_transform.grow(0.00125f);
-#endif
     Input::update();
 
     if (Input::buttonPressed(Qt::RightButton))
@@ -171,8 +165,7 @@ void Window::update()
       m_camera.translate(transSpeed * translation);
     }
 
-    m_transform.rotate(1.0f, QVector3D(0.4f, 0.3f, 0.3f));
-
+    m_transform.rotate(1.0f, QVector3D(0.3f, 0.3f, 0.3f));
     QOpenGLWindow::update();
 }
 

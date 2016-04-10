@@ -1,6 +1,10 @@
 #include "transform3d.h"
 #include <QDebug>
 
+const QVector3D Transform3D::LocalForward(0.0f, 0.0f, 1.0f);
+const QVector3D Transform3D::LocalUp(0.0f, 1.0f, 0.0f);
+const QVector3D Transform3D::LocalRight(1.0f, 0.0f, 0.0f);
+
 Transform3D Transform3D::translate(const QVector3D &dt)
 {
   m_dirty = true;
@@ -64,6 +68,9 @@ const QMatrix4x4 &Transform3D::toMatrix()
   return m_world;
 }
 
+QVector3D Transform3D::forward() const{ return m_rotation.rotatedVector(LocalForward); }
+QVector3D Transform3D::up() const{ return m_rotation.rotatedVector(LocalUp);}
+QVector3D Transform3D::right() const { return m_rotation.rotatedVector(LocalRight); }
 
 QDebug operator<<(QDebug dbg, const Transform3D &transform)
 {

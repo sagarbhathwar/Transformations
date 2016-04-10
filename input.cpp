@@ -14,7 +14,6 @@ struct InputInstance : std::pair<T, Input::InputState>
 
 typedef InputInstance<Qt::Key> KeyInstance;
 typedef InputInstance<Qt::MouseButton> ButtonInstance;
-
 typedef std::vector<KeyInstance> KeyContainer;
 typedef std::vector<ButtonInstance> ButtonContainer;
 
@@ -40,7 +39,7 @@ static inline void UpdateStates(TPair& instance)
 }
 
 template <typename TPair>
-static inline bool CheckReleased(const TPair &instance) { return instance.second == Input::InputReleased; }
+static inline bool CheckReleased(const TPair& instance) { return instance.second == Input::InputReleased; }
 
 template <typename Container>
 static inline void Update(Container &container)

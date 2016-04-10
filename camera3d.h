@@ -1,5 +1,6 @@
 #ifndef CAMERA3D_H
 #define CAMERA3D_H
+
 #include "transform3d.h"
 
 class Camera3D
@@ -37,8 +38,8 @@ private:
     QQuaternion m_rotation;
     QMatrix4x4 m_world;
 #ifndef QT_NO_DATASTREAM
-    friend QDataStream &operator<<(QDataStream& out, const Camera3D& transform);
-    friend QDataStream &operator>>(QDataStream& in, Camera3D& transform);
+    friend QDataStream& operator<<(QDataStream& out, const Camera3D& transform);
+    friend QDataStream& operator>>(QDataStream& in, Camera3D& transform);
 #endif
 };
 
@@ -62,8 +63,8 @@ QDebug operator<<(QDebug dbg, const Camera3D &transform);
 #endif
 
 #ifndef QT_NO_DATASTREAM
-QDataStream &operator<<(QDataStream& out, const Camera3D &transform);
-QDataStream &operator>>(QDataStream& in, Camera3D &transform);
+QDataStream& operator<<(QDataStream& out, const Camera3D &transform);
+QDataStream& operator>>(QDataStream& in, Camera3D &transform);
 #endif
 
 #endif // CAMERA3D_H

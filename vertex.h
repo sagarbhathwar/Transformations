@@ -1,9 +1,8 @@
 #ifndef VERTEX_H
 #define VERTEX_H
+
 #include <QVector3D>
 
-//Helped class for Vertex Shader Rendering
-//QVector3D Represents a vector or vertex in 3D space
 class Vertex
 {
 public:
